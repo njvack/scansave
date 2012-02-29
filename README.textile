@@ -1,0 +1,1 @@
+This is going to provide a small, lightweight web interface to uploading MRI scans. We're using a GE750 scanner, so we'll be focused on that for now.
