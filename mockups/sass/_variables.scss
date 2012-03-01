@@ -31,7 +31,7 @@ $baseline:          18px !default;
 
 // Griditude
 // Modify the grid styles in mixins.less
-$gridColumns:       16 !default;
+$gridColumns:       12 !default;
 $gridColumnWidth:   40px !default;
 $gridGutterWidth:   20px !default;
 $extraSpace:        ($gridGutterWidth * 2) !default; // For our grid calculations
@@ -39,16 +39,16 @@ $siteWidth:         ($gridColumns * $gridColumnWidth) + ($gridGutterWidth * ($gr
 
 // Color Scheme
 // Use this to roll your own color schemes if you like (unused by Bootstrap by default)
-$baseColor:         $blue !default;                  // Set a base color
-$complement:        spin($baseColor, 180) !default;  // Determine a complementary color
-$split1:            spin($baseColor, 158) !default;  // Split complements
-$split2:            spin($baseColor, -158) !default;
-$triad1:            spin($baseColor, 135) !default;  // Triads colors
-$triad2:            spin($baseColor, -135) !default;
-$tetra1:            spin($baseColor, 90) !default;   // Tetra colors
-$tetra2:            spin($baseColor, -90) !default;
-$analog1:           spin($baseColor, 22) !default;   // Analogs colors
-$analog2:           spin($baseColor, -22) !default;
+//$baseColor:         $blue !default;                  // Set a base color
+//$complement:        spin($baseColor, 180) !default;  // Determine a complementary color
+//$split1:            spin($baseColor, 158) !default;  // Split complements
+//$split2:            spin($baseColor, -158) !default;
+//$triad1:            spin($baseColor, 135) !default;  // Triads colors
+//$triad2:            spin($baseColor, -135) !default;
+//$tetra1:            spin($baseColor, 90) !default;   // Tetra colors
+//$tetra2:            spin($baseColor, -90) !default;
+//$analog1:           spin($baseColor, 22) !default;   // Analogs colors
+//$analog2:           spin($baseColor, -22) !default;
 
 
 
