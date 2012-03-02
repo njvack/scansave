@@ -116,6 +116,11 @@ select[multiple] {
   height: inherit;
 }
 
+input[type=search] {
+	padding-left: $basefont;
+	border-radius: $basefont;
+}
+
 textarea {
   height: auto;
 }

@@ -14,6 +14,7 @@ body {
 }
 
 #wrapper {
+	padding-top: $baseline;
 	@include fixed-container;
 	background-color: $white;
 }
@@ -23,11 +24,25 @@ body {
 	@include columns($gridColumns - 2);
 }
 
-ol#scans {
-	list-style: none;
-	margin-left: 0;
-	li {
-		margin-bottom: 1em;
+body#recent_scans {
+	ol#scans {
+		list-style: none;
+		margin-left: 0;
+		li {
+			margin-bottom: 1em;
+		}
+	}
+
+	header {
+		@include clearfix;
+
+		h4 {
+			float: left;
+		}
+		#search_scans {
+			padding-top: $baseline / 2;
+			float: right;
+		}
 	}
 }
 

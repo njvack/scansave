@@ -4,10 +4,16 @@
     <title>Recent Scans - Mockup</title>
     <link href="stylesheets/screen.css" rel="stylesheet" type="text/css" />
   </head>
-  <body>
+  <body id="recent_scans">
     <div id="wrapper">
       <div id="content">
-        <h4>Recent Scans</h4>
+		<header>
+			<h4>Recent Scans</h4>
+			<form id="search_scans" class="form-search">
+				<input type="search" class="search-query" name="q" placeholder="Exam number or protocol name"/>
+				<button type="submit" class="btn">Search</button>
+			</form>
+		</header>
 		<ol id="scans">
 			<li>
 				<div class="known"><strong>SOS</strong> 2/24 1:47pm (2432)</div>
@@ -29,7 +35,7 @@
 			<li>
 				<div><strong>GVMRI</strong> 2/23 12:41pm (2430)</div>
 				<div>
-					16 scans uploaded to <code>/study/gvmri/raw-data/&hellip;</code>
+					16 scans uploaded to <code>/study/gvmri/raw-data/110/dicoms</code>
 					&middot; <a href='#'>Move data</a>
 				</div>
 				<div>12 scans converted to nifti &middot; <a href='#'>Show scans</a></div>
@@ -42,6 +48,9 @@
 				<div>
 					<a href='#'>Import protocol</a> &middot; <a href='#'>Upload data</a>
 				</div>
+			</li>
+			<li>
+				<div><strong>AND MANY MANY MORE</strong></div>
 			</li>
 		</ol>
       </div>
