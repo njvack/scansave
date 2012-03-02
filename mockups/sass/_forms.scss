@@ -468,3 +468,26 @@ textarea[readonly] {
     padding-left: 20px;
   }
 }
+
+.form-horizontal {
+  // Increase spacing between groups
+  .control-group {
+    margin-bottom: $baseline;
+    @include clearfix();
+  }
+  // Float the labels left
+  .control-label {
+    float: left;
+    width: 140px;
+    padding-top: 5px;
+    text-align: right;
+  }
+  // Move over all input controls and content
+  .controls {
+    margin-left: 160px;
+  }
+  // Move over buttons in .form-actions to align with .controls
+  .form-actions {
+    padding-left: 160px;
+  }
+}

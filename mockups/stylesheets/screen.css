@@ -1425,6 +1425,38 @@ textarea[readonly] {
   padding-left: 20px;
 }
 
+/* line 474, ../sass/_forms.scss */
+.form-horizontal .control-group {
+  margin-bottom: 18px;
+  zoom: 1;
+}
+/* line 9, ../sass/_mixins.scss */
+.form-horizontal .control-group:before, .form-horizontal .control-group:after {
+  display: table;
+  content: "";
+  zoom: 1;
+  *display: inline;
+}
+/* line 15, ../sass/_mixins.scss */
+.form-horizontal .control-group:after {
+  clear: both;
+}
+/* line 479, ../sass/_forms.scss */
+.form-horizontal .control-label {
+  float: left;
+  width: 140px;
+  padding-top: 5px;
+  text-align: right;
+}
+/* line 486, ../sass/_forms.scss */
+.form-horizontal .controls {
+  margin-left: 160px;
+}
+/* line 490, ../sass/_forms.scss */
+.form-horizontal .form-actions {
+  padding-left: 160px;
+}
+
 /*
  * Tables.less
  * Tables for, you guessed it, tabular data
@@ -3037,7 +3069,7 @@ body#recent_scans header #search_scans {
   float: right;
 }
 
-/* line 49, ../sass/screen.scss */
+/* line 52, ../sass/screen.scss */
 code {
   background-color: transparent;
 }
