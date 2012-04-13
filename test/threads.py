@@ -7,35 +7,30 @@ class ExamHandler(threading.Thread):
 
     def __init__(self, timeout):
         self.timeout = timeout
-        self.file_notifier = threading.Condition()
-        self.adds = []
-        self.added = False
+        self.file_notifier = threading.Event()
+        self.file_notifier.set()
         threading.Thread.__init__(self)
 
     def run(self):
         print("Starting.")
-        while len(self.adds) == 0 or self.added:
-            self.added = False
-            self.file_notifier.acquire()
+        while self.file_notifier.is_set():
+            self.file_notifier.clear()
             self.file_notifier.wait(self.timeout)
-            self.file_notifier.release()
-        print("Done acquiring files - list: %s" % (self.adds))
 
     def add_item(self, item):
+        if not self.is_alive():
+            raise RuntimeError("I'm not started!")
         print("Adding %s" % (item))
-        self.file_notifier.acquire()
-        self.adds.append(item)
-        self.added = True
-        self.file_notifier.notify()
-        self.file_notifier.release()
+        self.file_notifier.set()
 
 
 def main():
-    eh = ExamHandler(2)
+    eh = ExamHandler(1)
     eh.start()
+    #time.sleep(2)
     for i in range(4):
         eh.add_item(i)
-        time.sleep(1)
+        time.sleep(0.5)
     eh.join()
     print(eh)
 
