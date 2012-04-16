@@ -1,1 +1,10 @@
 This is going to provide a small, lightweight web interface to uploading MRI scans. We're using a GE750 scanner, so we'll be focused on that for now.
+
+Components:
+
+h3. dicom_walk_process
+
+A little test program that walks over DICOM directories, checks against the database to see if they need processing, and if so:
+
+* Puts them in a temporary home
+* Flags the Exam as needing 
