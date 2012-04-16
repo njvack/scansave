@@ -10,19 +10,18 @@
 import math
 import time
 
-from mock.fake_dicom import FakeDicom
-from series import handler
+from mocks import FakeDicom
+import handler
 
 import logging
 logger = logging.getLogger("handler_leakdown")
 
 
-def main(out_iters=1000, in_iters=30, timeout=1, key_max=1000):
+def main(out_iters=100, in_iters=30, timeout=1):
     logger.info(
-        "leakdown start out_iters: in_iters %s %s timeout %s key_max: %s" %
-        (out_iters, in_iters, timeout, key_max))
+        "leakdown start out_iters: %s in_iters %s timeout %s" %
+        (out_iters, in_iters, timeout))
 
-    key_chars = int(math.ceil(math.log10(key_max)))
     mgr = handler.IncomingDicomManager(timeout, ".")
 
     for i in range(out_iters):
@@ -38,4 +37,8 @@ def main(out_iters=1000, in_iters=30, timeout=1, key_max=1000):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    main()
+    import sys
+    out_iters = int(sys.argv[1])
+    in_iters = int(sys.argv[2])
+    timeout = float(sys.argv[3])
+    main(out_iters, in_iters, timeout)
