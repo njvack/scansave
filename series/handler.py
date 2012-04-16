@@ -26,11 +26,13 @@ class IncomingDicomManager(object):
         self.timeout = timeout
         self.output_base_dir = output_base_dir
         self._series_handlers = {}
+        self._mutex = threading.Condition()
 
     def handle_dicom(self, dcm):
         key = dcm.series_unique_key
-        if key not in self._series_handlers:
-            self._series_handlers[key] = self._setup_handler(dcm)
+        with self._mutex:
+            if key not in self._series_handlers:
+                self._series_handlers[key] = self._setup_handler(dcm)
         handler = self._series_handlers[key]
         handler.handle_dicom(dcm)
 
@@ -44,7 +46,8 @@ class IncomingDicomManager(object):
 
     def remove_handler(self, handler):
         logger.debug("Removing handler %s" % (handler.series_key))
-        del self._series_handlers[handler.series_key]
+        with self._mutex:
+            del self._series_handlers[handler.series_key]
 
     def wait_for_handlers(self):
         timeout = self.timeout + 0.1 # Arbitrary?
@@ -59,11 +62,12 @@ class DicomSeriesHandler(threading.Thread):
         self.series_key = series_key
         self.output_dir = output_dir
         self.manager = manager
-        self.notifier = threading.Event()
+        self.notifier = threading.Condition()
+        self.uses = 0
         super(DicomSeriesHandler, self).__init__(name=series_key)
 
     def start(self):
-        self.notifier.set()
+        self._stop = False
         logger.debug("%s - starting" % (self))
         logger.info("%s: waiting for dicoms. Timeout: %s Output Dir: %s" %
             (self, self.timeout, self.output_dir))
@@ -71,10 +75,11 @@ class DicomSeriesHandler(threading.Thread):
 
     def run(self):
         logger.debug("%s - running" % (self))
-        while self.notifier.is_set():
-            self.notifier.clear()
-            self.notifier.wait(self.timeout)
-        self._finish()
+        with self.notifier:
+            while not self._stop:
+                self._stop = True
+                self.notifier.wait(self.timeout)
+            self._finish()
         logger.info("%s: successfully shut down" % (self))
 
     def _finish(self):
@@ -83,12 +88,16 @@ class DicomSeriesHandler(threading.Thread):
 
     def handle_dicom(self, dcm):
         if not self.is_alive():
-            raise RuntimeError("%s got handle_dicom before alive!")
-        logger.debug("%s - handling dicom %s" % (self, dcm.InstanceNumber))
-        self.notifier.set()
+            raise RuntimeError("%s got handle_dicom before alive!" % (self))
+        with self.notifier:
+            self._stop = False
+            self.uses += 1
+            logger.debug("%s - handling dicom %s" % (
+                self, dcm.InstanceNumber))
+            self.notifier.notify()
 
     def __str__(self):
-        return self.name
+        return "%s (%s)" % (self.name, self.uses)
 
 
 if __name__ == '__main__':
