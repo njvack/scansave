@@ -6,7 +6,7 @@
 # TODO LICENSE
 #
 # Subclasses of pydicom's dicom.Dataset, designed to let you unambiguously
-# group dicoms together in a series, or 
+# group dicoms together in a series.
 
 import dicom
 
@@ -19,4 +19,8 @@ class BaseMriDicom(dicom.dataset.Dataset):
 
     @property
     def series_unique_key(self):
-        return "%s-%s-%s" % (self.StudyID, self.SeriesNumber, self.StudyDate)
+        return "%s-%s" % (self.exam_unique_key, self.SeriesNumber)
+
+    @property
+    def exam_unique_key(self):
+        return "%s-%s" % (self.StudyDate, self.StudyID)

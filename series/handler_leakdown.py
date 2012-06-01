@@ -6,6 +6,7 @@
 # Copyright 2012 Board of Regents of the University of Wisconsin System
 #
 # Does a resource-leak test of the dicom series handlers. At least, hopefully.
+# Well, anyhow, it shows you how to use them.
 
 import math
 import time
