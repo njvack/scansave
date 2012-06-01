@@ -10,17 +10,9 @@
 
 import dicom
 
-class BaseMriDicom(dicom.dataset.Dataset):
+class BaseDicom(dicom.dataset.Dataset):
 
     @classmethod
     def from_file(klass, *args, **kwargs):
         dcm = dicom.read_file(*args, **kwargs)
         return klass(dcm)
-
-    @property
-    def series_unique_key(self):
-        return "%s-%s" % (self.exam_unique_key, self.SeriesNumber)
-
-    @property
-    def exam_unique_key(self):
-        return "%s-%s" % (self.StudyDate, self.StudyID)

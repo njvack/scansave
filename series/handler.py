@@ -11,7 +11,7 @@ import threading
 import logging
 import os
 
-from mri import BaseMriDicom
+from mri import BaseDicom
 
 logger = logging.getLogger(__name__)
 
@@ -22,56 +22,58 @@ class IncomingDicomManager(object):
     series_unique_key, and builds a DicomSeriesHandler for it.
     """
 
-    def __init__(self, timeout, output_base_dir):
+    def __init__(self, timeout, dicom_key_fx, handler_factory):
+        """
+        Build a new IncomingDicomManager.
+        timeout: The time this manager should wait for handlers to finish.
+        dicom_key_fx: Returns a string uniquely identifying a dicom's series,
+        given a dicom object
+        handler_factory: Creates a new dicom handler, is passed an example
+        dicom, name, and self.
+        """
         self.timeout = timeout
-        self.output_base_dir = output_base_dir
+        self.dicom_key_fx = dicom_key_fx
+        self.handler_factory = handler_factory
         self._series_handlers = {}
         self._mutex = threading.Condition()
 
     def handle_dicom(self, dcm):
-        key = dcm.series_unique_key
+        key = self.dicom_key_fx(dcm)
         with self._mutex:
             if key not in self._series_handlers:
+                logger.debug("Setting up handler for key: %s" % (key))
                 self._series_handlers[key] = self._setup_handler(dcm)
         handler = self._series_handlers[key]
         handler.handle_dicom(dcm)
 
     def _setup_handler(self, dcm):
-        key = dcm.series_unique_key
-        logger.debug("Setting up handler for %s" % (key))
-        out_dir = os.path.join(self.output_base_dir, key)
-        dsh = DicomSeriesHandler(self.timeout, key, out_dir, self)
+        dsh = self.handler_factory(dcm, self)
         dsh.start()
         return dsh
 
     def remove_handler(self, handler):
-        logger.debug("Removing handler %s" % (handler.series_key))
+        logger.debug("Removing handler %s" % (handler.name))
         with self._mutex:
-            del self._series_handlers[handler.series_key]
+            del self._series_handlers[handler.name]
 
     def wait_for_handlers(self):
-        timeout = self.timeout + 0.1 # Arbitrary?
         for handler in self._series_handlers.values():
-            handler.join(timeout)
+            handler.join(self.timeout)
 
 
-class DicomSeriesHandler(threading.Thread):
+class BaseDicomSeriesHandler(threading.Thread):
 
-    def __init__(self, timeout, series_key, output_dir, manager):
+    def __init__(self, timeout, name, manager):
+        super(BaseDicomSeriesHandler, self).__init__(name=name)
         self.timeout = timeout
-        self.series_key = series_key
-        self.output_dir = output_dir
         self.manager = manager
         self.notifier = threading.Condition()
-        self.uses = 0
-        super(DicomSeriesHandler, self).__init__(name=series_key)
 
     def start(self):
         self._stop = False
-        logger.debug("%s - starting" % (self))
-        logger.info("%s: waiting for dicoms. Timeout: %s Output Dir: %s" %
-            (self, self.timeout, self.output_dir))
-        super(DicomSeriesHandler, self).start()
+        logger.info("%s: waiting for dicoms. Timeout: %s" %
+            (self, self.timeout))
+        super(BaseDicomSeriesHandler, self).start()
 
     def run(self):
         logger.debug("%s - running" % (self))
@@ -80,24 +82,32 @@ class DicomSeriesHandler(threading.Thread):
                 self._stop = True
                 self.notifier.wait(self.timeout)
             self._finish()
-        logger.info("%s: successfully shut down" % (self))
+            self.manager.remove_handler(self)
+        logger.debug("%s: successfully shut down" % (self))
 
     def _finish(self):
+        """
+        Actually finish handling dicoms. Override this method in subclasses.
+        """
         logger.debug("%s - finishing" % (self))
-        self.manager.remove_handler(self)
 
     def handle_dicom(self, dcm):
         if not self.is_alive():
             raise RuntimeError("%s got handle_dicom before alive!" % (self))
         with self.notifier:
             self._stop = False
-            self.uses += 1
-            logger.debug("%s - handling dicom %s" % (
-                self, dcm.InstanceNumber))
+            self._handle(dcm)
             self.notifier.notify()
 
+    def _handle(self, dcm):
+        """
+        Do the internal handling of the dicom. Override this method in
+        subclasses.
+        """
+        logger.debug("%s - handling dicom" % (self))
+
     def __str__(self):
-        return "%s (%s)" % (self.name, self.uses)
+        return "%s" % (self.name)
 
 
 if __name__ == '__main__':
@@ -109,9 +119,16 @@ if __name__ == '__main__':
 
     timeout = int(sys.argv[1])
     in_dir = sys.argv[2]
-    out_dir = sys.argv[3]
-    mgr = IncomingDicomManager(timeout, out_dir)
+
+    def key_fx(dcm):
+        return "%s-%s-%s" % (dcm.StudyDate, dcm.StudyID, dcm.SeriesNumber)
+
+    def handler_factory(example_dicom, manager):
+        name = key_fx(example_dicom)
+        return BaseDicomSeriesHandler(timeout, name, manager)
+
+    mgr = IncomingDicomManager(timeout, key_fx, handler_factory)
     for f in glob.iglob("%s/*" % (in_dir)):
-        dcm = BaseMriDicom.from_file(f)
+        dcm = BaseDicom.from_file(f)
         mgr.handle_dicom(dcm)
     mgr.wait_for_handlers()

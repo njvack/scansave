@@ -10,12 +10,26 @@
 
 import math
 import time
+from optparse import OptionParser
 
 from mocks import FakeDicom
 import handler
 
 import logging
-logger = logging.getLogger("handler_leakdown")
+logger = logging.getLogger(__name__)
+
+class CountingDicomHandler(handler.BaseDicomSeriesHandler):
+
+    def __init__(self, timeout, name, manager):
+        super(CountingDicomHandler, self).__init__(timeout, name, manager)
+        self._uses = 0
+
+    def _handle(self, dcm):
+        self._uses += 1
+        logger.debug("Handling %s (%s)" % (self.name, self._uses))
+
+    def _finish(self):
+        logger.info("Finishing %s after %s uses" % (self.name, self._uses))
 
 
 def main(out_iters=100, in_iters=30, timeout=1):
@@ -23,7 +37,14 @@ def main(out_iters=100, in_iters=30, timeout=1):
         "leakdown start out_iters: %s in_iters %s timeout %s" %
         (out_iters, in_iters, timeout))
 
-    mgr = handler.IncomingDicomManager(timeout, ".")
+    def key_fx(dcm):
+        return dcm.key
+
+    def handler_factory(example_dicom, manager):
+        return CountingDicomHandler(
+            timeout, key_fx(example_dicom), manager)
+
+    mgr = handler.IncomingDicomManager(timeout, key_fx, handler_factory)
 
     for i in range(out_iters):
         for j in range(in_iters):
