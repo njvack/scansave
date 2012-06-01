@@ -11,8 +11,6 @@ import threading
 import logging
 import os
 
-from mri import BaseDicom
-
 logger = logging.getLogger(__name__)
 
 
@@ -114,6 +112,7 @@ if __name__ == '__main__':
     # Easy testing test!
     import sys
     import glob
+    import dicom
     logging.basicConfig()
     logger.setLevel(logging.DEBUG)
 
@@ -129,6 +128,6 @@ if __name__ == '__main__':
 
     mgr = DicomManager(timeout, key_fx, handler_factory)
     for f in glob.iglob("%s/*" % (in_dir)):
-        dcm = BaseDicom.from_file(f)
+        dcm = dicom.read_file(f)
         mgr.handle_dicom(dcm)
     mgr.wait_for_handlers()

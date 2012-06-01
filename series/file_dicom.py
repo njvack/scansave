@@ -10,9 +10,10 @@
 
 import dicom
 
-class BaseDicom(dicom.dataset.Dataset):
+class FileDicom(dicom.dataset.Dataset):
 
     @classmethod
-    def from_file(klass, *args, **kwargs):
-        dcm = dicom.read_file(*args, **kwargs)
+    def from_file(klass, filename):
+        dcm = dicom.read_file(filename)
+        dcm.filename = filename
         return klass(dcm)
