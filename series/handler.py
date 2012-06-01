@@ -112,7 +112,7 @@ if __name__ == '__main__':
     # Easy testing test!
     import sys
     import glob
-    import dicom
+    import file_dicom
     logging.basicConfig()
     logger.setLevel(logging.DEBUG)
 
@@ -128,6 +128,6 @@ if __name__ == '__main__':
 
     mgr = DicomManager(timeout, key_fx, handler_factory)
     for f in glob.iglob("%s/*" % (in_dir)):
-        dcm = dicom.read_file(f)
+        dcm = file_dicom.read_file(f)
         mgr.handle_dicom(dcm)
     mgr.wait_for_handlers()
