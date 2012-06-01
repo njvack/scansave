@@ -10,7 +10,6 @@
 
 import math
 import time
-from optparse import OptionParser
 
 from mocks import FakeDicom
 import handler
