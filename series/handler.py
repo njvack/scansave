@@ -61,10 +61,10 @@ class DicomManager(object):
             handler.join(self.timeout)
 
 
-class BaseDicomSeriesHandler(threading.Thread):
+class DicomSeriesHandler(threading.Thread):
 
     def __init__(self, timeout, name, manager):
-        super(BaseDicomSeriesHandler, self).__init__(name=name)
+        super(DicomSeriesHandler, self).__init__(name=name)
         self.timeout = timeout
         self.manager = manager
         self.notifier = threading.Condition()
@@ -73,7 +73,7 @@ class BaseDicomSeriesHandler(threading.Thread):
         self._stop = False
         logger.info("%s: waiting for dicoms. Timeout: %s" %
             (self, self.timeout))
-        super(BaseDicomSeriesHandler, self).start()
+        super(DicomSeriesHandler, self).start()
 
     def run(self):
         logger.debug("%s - running" % (self))
@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
     def handler_factory(example_dicom, manager):
         name = key_fx(example_dicom)
-        return BaseDicomSeriesHandler(timeout, name, manager)
+        return DicomSeriesHandler(timeout, name, manager)
 
     mgr = DicomManager(timeout, key_fx, handler_factory)
     for f in glob.iglob("%s/*" % (in_dir)):

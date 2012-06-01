@@ -18,7 +18,7 @@ import handler
 import logging
 logger = logging.getLogger(__name__)
 
-class CountingDicomHandler(handler.BaseDicomSeriesHandler):
+class CountingDicomHandler(handler.DicomSeriesHandler):
 
     def __init__(self, timeout, name, manager):
         super(CountingDicomHandler, self).__init__(timeout, name, manager)
