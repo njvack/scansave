@@ -16,7 +16,7 @@ from mri import BaseDicom
 logger = logging.getLogger(__name__)
 
 
-class IncomingDicomManager(object):
+class DicomManager(object):
     """
     Generic wrapper for all incoming dicoms -- reads a dicom, gets its
     series_unique_key, and builds a DicomSeriesHandler for it.
@@ -24,7 +24,7 @@ class IncomingDicomManager(object):
 
     def __init__(self, timeout, dicom_key_fx, handler_factory):
         """
-        Build a new IncomingDicomManager.
+        Build a new DicomManager.
         timeout: The time this manager should wait for handlers to finish.
         dicom_key_fx: Returns a string uniquely identifying a dicom's series,
         given a dicom object
@@ -127,7 +127,7 @@ if __name__ == '__main__':
         name = key_fx(example_dicom)
         return BaseDicomSeriesHandler(timeout, name, manager)
 
-    mgr = IncomingDicomManager(timeout, key_fx, handler_factory)
+    mgr = DicomManager(timeout, key_fx, handler_factory)
     for f in glob.iglob("%s/*" % (in_dir)):
         dcm = BaseDicom.from_file(f)
         mgr.handle_dicom(dcm)
