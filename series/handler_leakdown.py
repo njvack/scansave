@@ -17,7 +17,7 @@ import handler
 import logging
 logger = logging.getLogger(__name__)
 
-class CountingDicomHandler(handler.DicomSeriesHandler):
+class CountingDicomHandler(handler.ThreadedDicomSeriesHandler):
 
     def __init__(self, timeout, name, manager):
         super(CountingDicomHandler, self).__init__(timeout, name, manager)
@@ -43,7 +43,7 @@ def main(out_iters=100, in_iters=30, timeout=1):
         return CountingDicomHandler(
             timeout, key_fx(example_dicom), manager)
 
-    mgr = handler.DicomManager(timeout, key_fx, handler_factory)
+    mgr = handler.ThreadedDicomManager(timeout, key_fx, handler_factory)
 
     for i in range(out_iters):
         for j in range(in_iters):

@@ -14,7 +14,7 @@ import os
 logger = logging.getLogger(__name__)
 
 
-class DicomManager(object):
+class ThreadedDicomManager(object):
     """
     Generic wrapper for all incoming dicoms -- reads a dicom, gets its
     series_unique_key, and builds a DicomSeriesHandler for it.
@@ -59,10 +59,10 @@ class DicomManager(object):
             handler.join(self.timeout)
 
 
-class DicomSeriesHandler(threading.Thread):
+class ThreadedDicomSeriesHandler(threading.Thread):
 
     def __init__(self, timeout, name, manager):
-        super(DicomSeriesHandler, self).__init__(name=name)
+        super(ThreadedDicomSeriesHandler, self).__init__(name=name)
         self.timeout = timeout
         self.manager = manager
         self.notifier = threading.Condition()
@@ -71,7 +71,7 @@ class DicomSeriesHandler(threading.Thread):
         self._stop = False
         logger.info("%s: waiting for dicoms. Timeout: %s" %
             (self, self.timeout))
-        super(DicomSeriesHandler, self).start()
+        super(ThreadedDicomSeriesHandler, self).start()
 
     def run(self):
         logger.debug("%s - running" % (self))
@@ -126,7 +126,7 @@ if __name__ == '__main__':
         name = key_fx(example_dicom)
         return DicomSeriesHandler(timeout, name, manager)
 
-    mgr = DicomManager(timeout, key_fx, handler_factory)
+    mgr = ThreadedDicomManager(timeout, key_fx, handler_factory)
     for f in glob.iglob("%s/*" % (in_dir)):
         dcm = file_dicom.read_file(f)
         mgr.handle_dicom(dcm)
