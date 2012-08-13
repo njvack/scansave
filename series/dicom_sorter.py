@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class SortingDicomHandler(handler.DicomSeriesHandler):
+class SortingDicomHandler(handler.ThreadedDicomSeriesHandler):
     """
     Moves dicoms into the folder specified at init time. Your factory
     function will compute target_dir
@@ -51,7 +51,7 @@ def main(in_dir, out_dir):
 
         return SortingDicomHandler(target_dir, TIMEOUT, key_fx(dcm), manager)
 
-    mgr = handler.DicomManager(TIMEOUT, key_fx, handler_factory)
+    mgr = handler.ThreadedDicomManager(TIMEOUT, key_fx, handler_factory)
     for root, dirs, files in os.walk(in_dir):
         for f in files:
             pathname = os.path.join(root, f)
