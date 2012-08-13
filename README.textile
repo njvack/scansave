@@ -1,10 +1,12 @@
+h1. Scansave
+
+h3. Put those DICOMS in their place!
+
 This is going to provide a small, lightweight web interface to uploading MRI scans. We're using a GE750 scanner, so we'll be focused on that for now.
 
-Components:
+h3. Components:
 
-h3. dicom_walk_process
+h4. dicom_sorter
 
-A little test program that walks over DICOM directories, checks against the database to see if they need processing, and if so:
+A simple program that looks through a directory tree containing dicoms and sorts them into an output directory by study number, series number, and date.
 
-* Puts them in a temporary home
-* Flags the Exam as needing 
